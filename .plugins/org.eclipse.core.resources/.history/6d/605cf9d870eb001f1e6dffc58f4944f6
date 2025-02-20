@@ -1,0 +1,5 @@
+package com.example.bulletinboard.entity;
+
+public class Comment {
+
+}

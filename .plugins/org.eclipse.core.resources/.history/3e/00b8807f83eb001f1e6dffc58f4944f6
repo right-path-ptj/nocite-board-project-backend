@@ -1,0 +1,73 @@
+package com.example.bulletinboard.service;
+
+import com.example.bulletinboard.entity.Comment;
+import com.example.bulletinboard.entity.Post;
+import com.example.bulletinboard.repository.PostRepository;
+import com.example.bulletinboard.repository.CommentRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class PostService {
+    private final PostRepository postRepository;
+    
+
+    @Autowired
+    public PostService(PostRepository postRepository) {
+        this.postRepository = postRepository;
+    }
+
+    public List<Post> getAllPosts() {
+        return postRepository.findAll();
+    }
+
+    public Optional<Post> getPostById(Long id) {
+        return postRepository.findById(id);
+    }
+
+    public Post createPost(Post post) {
+        return postRepository.save(post);
+    }
+
+    public Optional<Post> updatePost(Long id, Post updatedPost) {
+        return postRepository.findById(id).map(post -> {
+            post.setTitle(updatedPost.getTitle());
+            post.setContent(updatedPost.getContent());
+            post.setAuthor(updatedPost.getAuthor());
+            return postRepository.save(post);
+        });
+    }
+
+    public boolean deletePost(Long id) {
+        if (postRepository.existsById(id)) {
+            postRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+    
+ // 댓글 기능 관련 메소드 (추가)
+    public List<Comment> getAllCommentsForFreePost(Long postId) {
+        return commentRepository.findByPostId(postId);
+    }
+
+    public Comment addCommentToFreePost(Long postId, String author, String content) {
+        Post post = postRepository.findById(postId).orElse(null);
+        if (post == null) {
+            return null; // 예외 처리하는 것이 더 좋습니다. (생략)
+        }
+        Comment comment = new Comment();
+        comment.setPost(post);
+        comment.setAuthor(author);
+        comment.setContent(content);
+        comment.setCreatedAt(LocalDateTime.now());
+        comment.setUpdatedAt(LocalDateTime.now());
+        return commentRepository.save(comment);
+    }
+    
+    
+}

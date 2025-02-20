@@ -1,0 +1,26 @@
+package com.example.bulletinboard.service;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.example.bulletinboard.entity.Comment;
+import com.example.bulletinboard.repository.CommentRepository;
+
+@Service
+public class ContentService {
+
+	private final CommentRepository commentRepository;
+	
+	@Autowired
+	public CommentServiced(CommentRepository commentRepository) {
+		
+	}
+	
+	public List<Comment> getAllComents(){
+		return null;
+		
+	}
+	
+}

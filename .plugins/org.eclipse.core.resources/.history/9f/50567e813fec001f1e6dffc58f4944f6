@@ -1,0 +1,30 @@
+package com.example.bulletinboard.service;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.example.bulletinboard.entity.Comment;
+import com.example.bulletinboard.repository.CommentRepository;
+
+@Service
+public class CommentService {  // 클래스명 수정
+
+    private final CommentRepository commentRepository;
+
+    @Autowired
+    public CommentService(CommentRepository commentRepository) {  // 생성자 오타 수정
+        this.commentRepository = commentRepository;
+    }
+
+    // 모든 댓글 조회
+    public List<Comment> getAllComments() {  // 메서드명 오타 수정
+        return commentRepository.findAll();  // 댓글 목록 반환
+    }
+    
+    public Comment createComment(Comment comment) {
+        return commentRepository.save(comment);
+    }
+    
+}

@@ -1,0 +1,25 @@
+package com.example.bulletinboard.entity;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import java.time.LocalDateTime;
+
+@Entity
+@Getter @Setter
+public class Comment {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne // Post Entity 와의 ManyToOne 관계 설정 (하나의 게시글에 여러 개의 댓글)
+    @JoinColumn(name = "post_id") // 외래키 컬럼명 설정: post_id
+    private Post post;
+
+    private String author; // 댓글 작성자 (나중에는 User Entity 와 연결하는 것이 좋습니다.)
+    private String content; // 댓글 내용
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    // 생성자, 필요하다면 메소드 추가
+}

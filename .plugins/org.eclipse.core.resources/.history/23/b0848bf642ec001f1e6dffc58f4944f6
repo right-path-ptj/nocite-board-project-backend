@@ -1,0 +1,74 @@
+package com.example.bulletinboard.service;
+
+import com.example.bulletinboard.entity.Comment;
+//import com.example.bulletinboard.entity.Comment;
+import com.example.bulletinboard.entity.Post;
+import com.example.bulletinboard.repository.CommentRepository;
+import com.example.bulletinboard.repository.PostRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class PostService {
+    private final PostRepository postRepository;
+    private final CommentRepository commentRepository; // CommentRepository 추가
+
+    @Autowired
+    public PostService(PostRepository postRepository, CommentRepository commentRepository) {
+        this.postRepository = postRepository;
+        this.commentRepository = commentRepository; // CommentRepository 주입
+    }
+
+    public List<Post> getAllPosts() {
+        return postRepository.findAll();
+    } 
+
+    public Optional<Post> getPostById(Long id) {
+        return postRepository.findById(id);
+    }
+
+    public Post createPost(Post post) {
+        return postRepository.save(post);
+    }
+
+    public Optional<Post> updatePost(Long id, Post updatedPost) {
+        return postRepository.findById(id).map(post -> {
+            post.setTitle(updatedPost.getTitle());
+            post.setContent(updatedPost.getContent());
+            post.setAuthor(updatedPost.getAuthor());
+            return postRepository.save(post);
+        });
+    }
+
+    public boolean deletePost(Long id) {
+        if (postRepository.existsById(id)) {
+            postRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+
+    // 댓글 기능 관련 메소드 추가
+//    public Optional<Comment> getAllCommentsForPost(Long postId) {
+//        return commentRepository.findById(postId);
+//    }
+//
+//    public Comment addCommentToPost(Long postId, String author, String content) {
+//        Optional<Post> postOptional = postRepository.findById(postId);
+//        if (!postOptional.isPresent()) { // Optional 사용으로 변경
+//            return null; // 게시글이 없을 경우 null 반환 (예외 처리 고려)
+//        }
+//        Post post = postOptional.get(); // Optional 에서 Post 객체 가져오기
+//
+//        Comment comment = new Comment();
+//        comment.setPost(post);
+//        comment.setAuthor(author);
+//        comment.setContent(content);
+//        comment.setCreatedAt(LocalDateTime.now());
+//        comment.setUpdatedAt(LocalDateTime.now());
+//        return commentRepository.save(comment);
+//    }
+}

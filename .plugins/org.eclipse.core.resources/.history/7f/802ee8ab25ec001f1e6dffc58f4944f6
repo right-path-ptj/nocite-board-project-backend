@@ -1,0 +1,88 @@
+package com.example.bulletinboard.controller; // 패키지 경로 확인 (오타 주의)
+
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping; // @GetMapping import 확인
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping; // @RequestMapping import 확인
+import org.springframework.web.bind.annotation.RequestParam; // @RequestParam import 추가
+import org.springframework.web.bind.annotation.RestController; // @RestController import 확인
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity; // ResponseEntity import 확인
+import java.util.List; // List import 확인
+import java.util.Optional;
+
+import com.example.bulletinboard.entity.Post; // Post Entity import 확인
+import com.example.bulletinboard.entity.Comment; // Comment Entity import 추가
+import com.example.bulletinboard.service.PostService; // PostService import 확인
+
+import jakarta.validation.Valid;
+
+@RestController // @RestController 어노테이션 확인
+@RequestMapping("/api/posts") // @RequestMapping("/api/posts") 확인 (오타, 띄어쓰기, 대소문자 주의)
+public class PostController {
+
+    private final PostService postService;
+
+    public PostController(PostService postService) {
+        this.postService = postService;
+    }
+
+    @GetMapping // @GetMapping 어노테이션 확인 (경로 정보 없이 @GetMapping) - /api/posts 경로에 매핑됨
+    public ResponseEntity<List<Post>> getAllPosts() { // ResponseEntity<List<Post>> 반환 타입 확인
+        List<Post> posts = postService.getAllPosts();
+        return ResponseEntity.ok(posts); // ResponseEntity.ok(posts) 로 응답하는지 확인
+    }
+
+    @PostMapping
+    public ResponseEntity<Post> createPost(@Valid @RequestBody Post post) {
+        Post createdPost = postService.createPost(post);
+        return new ResponseEntity<>(createdPost, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Post> updatePost(@PathVariable Long id, @Valid @RequestBody Post updatedPost) {
+        Optional<Post> post = postService.updatePost(id, updatedPost);
+        return post.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<HttpStatus> deletePost(@PathVariable Long id) {
+        if (postService.deletePost(id)) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/{id}") // 특정 ID의 게시글 조회 API 추가
+    public ResponseEntity<Post> getPostById(@PathVariable Long id) {
+        Optional<Post> post = postService.getPostById(id);
+        return post.map(ResponseEntity::ok)
+                   .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // 댓글 기능 API 엔드포인트 추가
+
+    @GetMapping("/{postId}/comments") // 특정 게시글의 댓글 목록 조회
+    public ResponseEntity<List<Comment>> getAllCommentsForPost(@PathVariable Long postId) {
+        List<Comment> comments = postService.getAllCommentsForPost(postId);
+        return ResponseEntity.ok(comments);
+    }
+
+    @PostMapping("/{postId}/comments") // 특정 게시글에 댓글 추가
+    public ResponseEntity<Comment> addCommentToPost(
+            @PathVariable Long postId,
+            @RequestParam String author, // 쿼리 파라미터로 작성자, 내용 전달 받음 (RequestBody 로 받는 것이 일반적)
+            @RequestParam String content) {
+        Comment comment = postService.addCommentToPost(postId, author, content);
+        if (comment != null) {
+            return ResponseEntity.ok(comment);
+        } else {
+            return ResponseEntity.badRequest().build(); // 게시글이 없을 경우 400 Bad Request 응답
+        }
+    }
+}
